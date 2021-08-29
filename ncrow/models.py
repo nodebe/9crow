@@ -2,6 +2,13 @@ from ncrow import db, login_manager
 from flask_login import UserMixin
 
 
+@login_manager.user_loader
+def load_user(user_id):
+	'''This callback is used to reload the user object from the user ID stored in the session. 
+	It should take the unicode ID of a user, and return the corresponding user object'''
+	
+	return User.query.get(int(user_id))
+
 class User(db.Model, UserMixin):
 	id = db.Column(db.Integer, primary_key=True, unique=True)
 	fullname = db.Column(db.String(30))
@@ -39,7 +46,7 @@ class Balance(db.Model):
 class Transaction(db.Model):
 	id = db.Column(db.Integer, primary_key=True, unique=True)
 	vendor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	buyer_id = db.Column(db.Integer)
 	transaction_id = db.Column(db.String(15), unique=True) # Generated using the token secrets. Do check before inserting
 	amount = db.Column(db.Integer, default=0)
 	description= db.Column(db.String)

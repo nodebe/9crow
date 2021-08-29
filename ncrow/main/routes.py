@@ -12,4 +12,4 @@ def index():
 @main.route('/fees')
 def fees():
 	
-	return render_template('fees.html', title='9crow - Fees')
+	return render_template('fees.html', title='Fees')

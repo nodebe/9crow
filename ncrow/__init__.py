@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from 9crow.config import app
+from ncrow.config import app
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -9,11 +9,11 @@ login_manager =  LoginManager(app)
 login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
 
-from 9crow.models import *
+from ncrow.models import *
 
 
-from 9crow.users.routes import users
-from 9crow.main.routes import main
+from ncrow.users.routes import users
+from ncrow.main.routes import main
 
 app.register_blueprint(users)
 app.register_blueprint(main)

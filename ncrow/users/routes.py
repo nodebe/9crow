@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount
+from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount, Login
 from ncrow.models import User, Account
 from ncrow import db
-from flask_login import current_user, login_user, login_required
+from flask_login import current_user, login_user, login_required, logout_user
 from passlib.hash import sha256_crypt as sha256
 
 
@@ -11,8 +11,8 @@ ERROR = 'Something went wrong, try again later!'
 
 @users.route('/register', methods=['GET', 'POST'])
 def register():
-	# if current_user.is_authenticated:
-	# 	return redirect(url_for('users.user_dashboard'))
+	if current_user.is_authenticated:
+		return redirect(url_for('users.userdashboard'))
 	form = Register()
 	if form.validate_on_submit():
 		hashed_password = sha256.encrypt(str(form.password.data))
@@ -35,8 +35,23 @@ def register():
 
 @users.route('/login', methods=['GET', 'POST'])
 def login():
-
-	return render_template('login.html', title='9crow - Login')
+	if current_user.is_authenticated:
+		return redirect(url_for('users.userdashboard'))
+	login_form = Login()
+	if login_form.validate_on_submit():
+		try:
+			user = User.query.filter_by(email=login_form.email.data).first()
+			if user and sha256.verify(login_form.password.data, user.password):
+				login_user(user)
+				next_page = request.args.get('next')
+				return redirect(next_page) if next_page else redirect(url_for('users.userdashboard'))
+			else:
+				flash('This user does not exist!', 'warning')
+				return redirect(url_for('users.login'))
+		except Exception as e:
+			flash(f'{ERROR} : {e}', 'warning')
+			return redirect(url_for('users.login'))
+	return render_template('login.html', title='9crow - Login', login_form=login_form)
 
 @users.route('/userprofile', methods=["GET", "POST"])
 @users.route('/userprofile/<form_type>', methods=["POST", "GET"])
@@ -144,3 +159,18 @@ def delete_bank_account(account_id):
 		return(redirect(url_for('users.userprofile_bank_accounts')))
 
 	return(redirect(url_for('users.userprofile_bank_accounts')))
+
+@users.route('/forgotpassword', methods=['GET', 'POST'])
+def forgotpassword():
+
+	return '<h1>So you forgot your password! What do you want me to do?</h1>'
+
+@users.route('/userdashboard')
+def userdashboard():
+
+	return render_template('dashboard.html', title='User Dashboard')
+
+@users.route('/logout')
+def logout():
+	logout_user()
+	return redirect(url_for('users.login'))

@@ -29,6 +29,10 @@ class Register(FlaskForm):
 		if user:
 			raise ValidationError('Username already exists!')
 
+class Login(FlaskForm):
+	email = EmailField('Email Address', validators=[InputRequired('Fill in a valid Email')])
+	password = PasswordField('Password', validators=[InputRequired('Fill in a your password')])
+
 class ProfilePersonal(FlaskForm):
 	full_name = StringField('Full Name', validators=[InputRequired('Fill in your fullname')] )	
 	username = StringField('Username', validators=[InputRequired('Fill in a username'), Length(min=3)] )

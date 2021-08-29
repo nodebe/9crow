@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange
-from ncrow.models import User
+from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount
+from ncrow.models import User, Account
 from ncrow import db
 from flask_login import current_user, login_user, login_required
 from passlib.hash import sha256_crypt as sha256
@@ -11,8 +11,8 @@ ERROR = 'Something went wrong, try again later!'
 
 @users.route('/register', methods=['GET', 'POST'])
 def register():
-	if current_user.is_authenticated:
-		return redirect(url_for('users.user_dashboard'))
+	# if current_user.is_authenticated:
+	# 	return redirect(url_for('users.user_dashboard'))
 	form = Register()
 	if form.validate_on_submit():
 		hashed_password = sha256.encrypt(str(form.password.data))
@@ -109,12 +109,38 @@ def userprofile(form_type=''):
 
 	return render_template('profile.html', title='Profile', personal_edit=personal_edit_form, email_edit=email_edit_form, phone_edit=phone_edit_form, password_edit=password_edit_form)
 
-@users.route('/userprofile_bank_accounts')
+@users.route('/userprofile_bank_accounts', methods=['GET', 'POST'])
 def userprofile_bank_accounts():
+	bank_edit_form = BankAccount()
 
-	return render_template('profile-bank-accounts.html', title='Bank Accounts')
+	if  bank_edit_form.validate_on_submit():
+		try:
+			new_account = Account(user_id=current_user.id, bank_name=bank_edit_form.bank_name.data, account_name=bank_edit_form.account_name.data, account_number=bank_edit_form.account_number.data, account_type=bank_edit_form.account_type.data)
+		except Exception as e:
+			flash(f'{ERROR} : {e}', 'warning')
+		else:
+			db.session.add(new_account)
+			db.session.commit()
+			flash('Bank Account added successfully.', 'success')
+			return redirect(url_for('users.userprofile_bank_accounts'))
+
+	return render_template('profile-bank-accounts.html', title='Bank Accounts', bank_edit=bank_edit_form)
 
 @users.route('/profile_notifications')
 def profile_notifications():
 
 	return render_template('profile-notifications.html', title='Notifications')
+
+@users.route('/delete_bank_account/<account_id>')
+def delete_bank_account(account_id):
+	try:
+		account = Account.query.filter_by(id=account_id).first()
+		db.session.delete(account)
+		db.session.commit()
+	except Exception as e:
+		flash(f'{ERROR} : {e}', 'warning')
+	else:
+		flash('Account details deleted successfully.', 'success')
+		return(redirect(url_for('users.userprofile_bank_accounts')))
+
+	return(redirect(url_for('users.userprofile_bank_accounts')))

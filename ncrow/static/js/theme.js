@@ -1,7 +1,3 @@
-/*
-Template:  		Payyed HTML Template
-Written by: 	Harnish Design - (http://www.harnishdesign.net)
-*/
 
 (function ($) {
 	"use strict";

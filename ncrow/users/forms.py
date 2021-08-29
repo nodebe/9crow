@@ -1,14 +1,14 @@
 from ncrow.models import User
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectField, DateField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, DateField, RadioField, IntegerField
 from wtforms.fields.html5 import EmailField, TelField, URLField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError
 from passlib.hash import sha256_crypt as sha256
 
 STATES = [('Abia'), ('Adamawa'), ('Akwa Ibom'), ('Anambra'), ('Bauchi'), ('Bayelsa'), ('Benue'), ('Borno'), ('Cross River'), ('Delta'), ('Ebonyi'), ('Edo'), ('Ekiti'), ('Enugu'), ('Gombe'), ('Imo'), ('Jigawa'), ('Kaduna'), ('Kano'), ('Katsina'), ('Kebbi'), ('Kogi'), ('Kwara'), ('Lagos'), ('Nasarawa'), ('Niger'), ('Ogun'), ('Ondo'), ('Osun'), ('Oyo'), ('Plateau'), ('Rivers'), ('Sokoto'), ('Taraba'), ('Yobe'), ('Zamfara'), ('FCT')]
-
 COUNTRIES = [('Nigeria')]
+BANKS = ['Access Bank', 'Access Bank (Diamond)', 'ALAT by WEMA', 'ASO Savings and Loans', 'CEMCS Microfinance Bank', 'Citibank Nigeria', 'Ecobank Nigeria', 'Ekondo Microfinance Bank', 'Fidelity Bank', 'First Bank of Nigeria', 'First City Monument Bank', 'Globus Bank', 'Guaranty Trust Bank', 'Hasal Microfinance Bank', 'Heritage Bank', 'Jaiz Bank', 'Keystone Bank', 'Kuda Bank', 'Parallex Bank', 'Polaris Bank', 'Providus Bank', 'Rubies MFB', 'Sparkle Microfinance Bank', 'Stanbic IBTC Bank', 'Standard Chartered Bank', 'Sterling Bank', 'Suntrust Bank', 'TAJ Bank', 'TCF MFB', 'Titan Bank', 'Union Bank of Nigeria', 'United Bank For Africa', 'Unity Bank', 'VFD', 'Wema Bank', 'Zenith Bank']
 
 class Register(FlaskForm):
 	full_name = StringField('Full Name', validators=[InputRequired('Fill in your fullname')] )	
@@ -62,4 +62,17 @@ class PasswordChange(FlaskForm):
 
 	def validate_oldpassword(self, oldpassword):
 		if not sha256.verify(oldpassword.data, current_user.password):
+			raise ValidationError('Password is not correct!')
+
+class BankAccount(FlaskForm):
+	account_type = RadioField('', choices=[('Personal','Personal'),('Business','Business')])
+	# bank_country = SelectField('Country', choices=COUNTRIES)
+	bank_name = SelectField('Bank Name', choices=BANKS)
+	account_name = StringField('Account Name', validators=[InputRequired('Fill in your account name')])
+	account_number = StringField('Account Number', validators=[InputRequired('Fill in your account number'), Length(min=10, max=10)])
+	password = PasswordField('Password', validators=[InputRequired('Fill in your profile password.')])
+	agree = BooleanField('', validators=[InputRequired()], default='checked')
+
+	def validate_password(self, password):
+		if not sha256.verify(password.data, current_user.password):
 			raise ValidationError('Password is not correct!')

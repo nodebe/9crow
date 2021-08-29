@@ -36,6 +36,7 @@ class Account(db.Model):
 	account_name = db.Column(db.String)
 	account_number = db.Column(db.String(11))
 	account_type = db.Column(db.String(9)) # Personal or Business account
+	account_status = db.Column(db.String(8), default='Pending')
 
 class Balance(db.Model):
 	id = db.Column(db.Integer, primary_key=True, unique=True)

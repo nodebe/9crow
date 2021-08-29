@@ -13,3 +13,8 @@ def index():
 def fees():
 	
 	return render_template('fees.html', title='Fees')
+
+@main.route('/contactus')
+def contactus():
+	
+	return render_template('contact-us.html', title='Contact us')

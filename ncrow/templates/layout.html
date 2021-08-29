@@ -18,6 +18,7 @@
 <link rel="stylesheet" type="text/css" href="../static/vendor/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="../static/vendor/font-awesome/css/all.min.css" />
 <link rel="stylesheet" type="text/css" href="../static/vendor/owl.carousel/assets/owl.carousel.min.css" />
+<link rel="stylesheet" type="text/css" href="../static/vendor/daterangepicker/daterangepicker.css" />
 <link rel="stylesheet" type="text/css" href="../static/css/stylesheet.css" />
 </head>
 <body>
@@ -106,7 +107,7 @@
                     <li>
                       <div class="dropdown-mega-content">
                         <div class="row">
-                          <div class="col-lg-3"> <span class="sub-title">Homepage</Span>
+                          <div class="col-lg-3"> <span class="sub-title">Homepage</span>
                             <ul class="dropdown-mega-submenu">
                               <li><a class="dropdown-item" href="index.html">Home Version 1</a></li>
                               <li><a class="dropdown-item" href="index-2.html">Home Version 2</a></li>
@@ -114,7 +115,7 @@
                               <li><a class="dropdown-item" href="landing-page-receive.html">Landing Page - Receive</a></li>
                             </ul>
                           </div>
-                          <div class="col-lg-3"> <span class="sub-title">Account</Span>
+                          <div class="col-lg-3"> <span class="sub-title">Account</span>
                             <ul class="dropdown-mega-submenu">
                               <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
                               <li><a class="dropdown-item" href="profile-cards-and-bank-accounts.html">Cards & Bank Accounts</a></li>
@@ -135,7 +136,7 @@
                               </li>
                             </ul>
                           </div>
-                          <div class="col-lg-3"> <span class="sub-title">Dashboard</Span>
+                          <div class="col-lg-3"> <span class="sub-title">Dashboard</span>
                             <ul class="dropdown-mega-submenu">
                               <li><a class="dropdown-item" href="dashboard.html">Dashboard</a></li>
                               <li><a class="dropdown-item" href="transactions.html">Transactions</a></li>
@@ -169,7 +170,7 @@
                               </li>
                             </ul>
                           </div>
-                          <div class="col-lg-3"> <span class="sub-title">Others</Span>
+                          <div class="col-lg-3"> <span class="sub-title">Others</span>
                             <ul class="dropdown-mega-submenu">
                               <li><a class="dropdown-item" href="about-us.html">About Us</a></li>
                               <li><a class="dropdown-item" href="fees.html">Fees</a></li>
@@ -205,7 +206,8 @@
     </div>
   </header>
   <!-- Header End --> 
-  
+  {% block secondarymenu %}
+  {% endblock secondarymenu %}
   <!-- Content
   ============================================= -->
   <div id="content">
@@ -285,6 +287,22 @@
 <script src="../static/vendor/jquery/jquery.min.js"></script> 
 <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script> 
 <script src="../static/vendor/owl.carousel/owl.carousel.min.js"></script> 
+<script src="../static/vendor/daterangepicker/moment.min.js"></script> 
+<script src="../static/vendor/daterangepicker/daterangepicker.js"></script>
+<script>
+$(function() {
+ 'use strict';
+  // Birth Date
+  $('#birthDate').daterangepicker({
+  singleDatePicker: true,
+  "showDropdowns": true,
+  autoUpdateInput: false,
+  maxDate: moment().add(0, 'days'),
+  }, function(chosen_date) {
+  $('#birthDate').val(chosen_date.format('DD-MM-YYYY'));
+  });
+  });
+</script>
 <script src="../static/js/theme.js"></script>
 </body>
 </html>

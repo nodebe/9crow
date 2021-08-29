@@ -14,9 +14,11 @@ from ncrow.models import *
 
 from ncrow.users.routes import users
 from ncrow.main.routes import main
+from ncrow.transactions.routes import transactions
 
 app.register_blueprint(users)
 app.register_blueprint(main)
+app.register_blueprint(transactions)
 
 
 db.create_all()

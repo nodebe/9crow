@@ -1,9 +1,10 @@
 from ncrow.models import User
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectField, DateField, RadioField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, DateField, RadioField, IntegerField, MultipleFileField, HiddenField, TextAreaField
 from wtforms.fields.html5 import EmailField, TelField, URLField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError
+from flask_wtf.file import FileAllowed
 from passlib.hash import sha256_crypt as sha256
 
 STATES = [('Abia'), ('Adamawa'), ('Akwa Ibom'), ('Anambra'), ('Bauchi'), ('Bayelsa'), ('Benue'), ('Borno'), ('Cross River'), ('Delta'), ('Ebonyi'), ('Edo'), ('Ekiti'), ('Enugu'), ('Gombe'), ('Imo'), ('Jigawa'), ('Kaduna'), ('Kano'), ('Katsina'), ('Kebbi'), ('Kogi'), ('Kwara'), ('Lagos'), ('Nasarawa'), ('Niger'), ('Ogun'), ('Ondo'), ('Osun'), ('Oyo'), ('Plateau'), ('Rivers'), ('Sokoto'), ('Taraba'), ('Yobe'), ('Zamfara'), ('FCT')]
@@ -80,3 +81,9 @@ class BankAccount(FlaskForm):
 	def validate_password(self, password):
 		if not sha256.verify(password.data, current_user.password):
 			raise ValidationError('Password is not correct!')
+
+class Fulfilled(FlaskForm):
+	buyer_comment = TextAreaField('Comment', default='Good')
+	rating = SelectField('Rating', choices=[(1),(2),(3),(4),(5)], default=1)
+	picture = MultipleFileField('Proof Images', validators = [FileAllowed(['jpg','png', 'jpeg','JPG','JPEG','PNG']), InputRequired('Please upload a proof of fulfillment')])
+	form_type = HiddenField('Fulfilled', validators = [InputRequired()])

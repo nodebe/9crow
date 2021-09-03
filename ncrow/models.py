@@ -1,5 +1,6 @@
 from ncrow import db, login_manager
 from flask_login import UserMixin
+from datetime import datetime as dt
 
 
 @login_manager.user_loader
@@ -20,14 +21,17 @@ class User(db.Model, UserMixin):
 	vendor_status = db.Column(db.Integer, default=0)
 	rating = db.Column(db.String, default='0.0') # A list seperated by ';' is used here. all vendor ratings are in the list to be able to calculate the average
 	rating_count = db.Column(db.Integer, default=0) # This increments by 1 anytime a vendor gets rated by a customer who bought something from him(the vendor)
-	dob = db.Column(db.DateTime)
+	dob = db.Column(db.DateTime, default=dt.now())
 	address = db.Column(db.String)
 	city = db.Column(db.String)
 	state = db.Column(db.String)
+	store_name = db.Column(db.String, default='9crow services')
 	country = db.Column(db.String, default='Nigeria')
 	bank_accounts = db.relationship('Account', backref='bank_accounts', lazy=True)
 	balance = db.relationship('Balance', backref='user_balance', uselist=False)
-	transactions = db.relationship('Transaction', backref='user_transactions')
+	vendor_transactions = db.relationship('Transaction', backref='vendor',foreign_keys='Transaction.vendor_id')
+	user_transactions = db.relationship('Transaction', backref='buyer',foreign_keys='Transaction.buyer_id')
+	withdraws_deposits = db.relationship('WithdrawDeposit', backref='user_withdraws_deposits')
 
 class Account(db.Model):
 	id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -47,10 +51,11 @@ class Balance(db.Model):
 class Transaction(db.Model):
 	id = db.Column(db.Integer, primary_key=True, unique=True)
 	vendor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	buyer_id = db.Column(db.Integer)
+	buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	transaction_id = db.Column(db.String(15), unique=True) # Generated using the token secrets. Do check before inserting
 	amount = db.Column(db.Integer, default=0)
 	description= db.Column(db.String)
+	transaction_date = db.Column(db.DateTime)
 	_vendor_picture = db.Column(db.String, default = None)
 	_buyer_picture = db.Column(db.String, default = None)
 	rating = db.Column(db.Integer, default=0)
@@ -85,3 +90,12 @@ class Transaction(db.Model):
 				self._buyer_picture += ';{}'.format(picture)
 			else:
 				self._buyer_picture = '{}'.format(picture)
+
+class WithdrawDeposit(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	transaction_type = db.Column(db.String(11))
+	transaction_id = db.Column(db.String(30))
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	amount = db.Column(db.Integer, default=0)
+	date = db.Column(db.String(11))
+	status = db.Column(db.String(9), default='pending')

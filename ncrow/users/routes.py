@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import current_user, login_user, login_required, logout_user
 from ncrow import db
 from ncrow.models import User, Account, Transaction, WithdrawDeposit, Balance
-from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount, Login, Fulfilled, Dispute
+from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount, Login, Fulfilled, Dispute, ProfileStore
 from ncrow.users.utils import save_picture
 from passlib.hash import sha256_crypt as sha256
 
@@ -62,6 +62,7 @@ def userprofile(form_type=''):
 	email_edit_form = ProfileEmail()
 	phone_edit_form = ProfilePhone()
 	password_edit_form = PasswordChange()
+	store_edit_form = ProfileStore()
 
 	if request.method == 'GET':
 		# Inserting data from db into form fields
@@ -111,6 +112,16 @@ def userprofile(form_type=''):
 			db.session.commit()
 			flash('Phone number updated successfully.', 'success')
 			return redirect(url_for('users.userprofile'))
+	#updating store form value
+	elif form_type == 'store' and store_edit_form.validate_on_submit():
+		try:
+			current_user.store_name = store_edit_form.store.data
+		except Exception as e:
+			flash(f'{ERROR} : {e}', 'warning')
+		else:
+			db.session.commit()
+			flash('Store name updated successfully.', 'success')
+			return redirect(url_for('users.userprofile'))
 	#updating user password
 	elif form_type == 'password' and password_edit_form.validate_on_submit():
 		hashed_password = sha256.encrypt(str(password_edit_form.newpassword.data))
@@ -123,7 +134,7 @@ def userprofile(form_type=''):
 			flash('Password updated successfully.', 'success')
 			return redirect(url_for('users.userprofile'))
 
-	return render_template('profile.html', title='Profile', personal_edit=personal_edit_form, email_edit=email_edit_form, phone_edit=phone_edit_form, password_edit=password_edit_form)
+	return render_template('profile.html', title='Profile', personal_edit=personal_edit_form, email_edit=email_edit_form, phone_edit=phone_edit_form, password_edit=password_edit_form, store_edit=store_edit_form)
 
 @users.route('/userprofile_bank_accounts', methods=['GET', 'POST'])
 @login_required

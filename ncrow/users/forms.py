@@ -59,6 +59,9 @@ class ProfileEmail(FlaskForm):
 class ProfilePhone(FlaskForm):
 	phone = TelField('Mobile', validators=[InputRequired('Fill in a valid Phone Number')])
 
+class ProfileStore(FlaskForm):
+	store = StringField('Store Name', validators=[InputRequired('Fill in your store name'), Length(max=15)])
+
 class PasswordChange(FlaskForm):
 	oldpassword = PasswordField('Enter Current Password:', validators = [InputRequired()])
 	newpassword = PasswordField('Enter New Password:', validators = [InputRequired('Fill in a strong password'), Length(min = 6, message = 'Password must be more than 6 characters')])

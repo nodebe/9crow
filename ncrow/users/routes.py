@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import current_user, login_user, login_required, logout_user
 from ncrow import db
 from ncrow.models import User, Account, Transaction, WithdrawDeposit, Balance
-from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount, Login, Fulfilled
+from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount, Login, Fulfilled, Dispute
 from ncrow.users.utils import save_picture
 from passlib.hash import sha256_crypt as sha256
 
@@ -52,7 +52,7 @@ def login():
 		except Exception as e:
 			flash(f'{ERROR} : {e}', 'warning')
 			return redirect(url_for('users.login'))
-	return render_template('login.html', title='9crow - Login', login_form=login_form)
+	return render_template('login.html', title='Login', login_form=login_form)
 
 @users.route('/userprofile', methods=["GET", "POST"])
 @users.route('/userprofile/<form_type>', methods=["POST", "GET"])
@@ -169,22 +169,18 @@ def forgotpassword():
 	return '<h1>So you forgot your password! What do you want me to do?</h1>'
 
 @users.route('/userdashboard')
-@users.route('/userdashboard/<transaction_id>', methods=['POST', 'GET'])
+@users.route('/userdashboard/<form_type>/<transaction_id>', methods=['POST', 'GET'])
 @login_required
-def userdashboard(transaction_id=''):
-	fulfilled_form = Fulfilled(form_type=1) # form_type=1 is for fulfilled, form_type=2 is for dispute
-	print(f'{fulfilled_form.validate_on_submit()}')
-	if transaction_id != '' and fulfilled_form.validate_on_submit():
+def userdashboard(transaction_id='', form_type=''):
+	fulfilled_form = Fulfilled()
+	dispute_form = Dispute()
+	if transaction_id != '' and form_type == 'fulfilled' and fulfilled_form.validate_on_submit():
 		transaction = Transaction.query.filter_by(id=transaction_id).first()
-		print('here')
 		if current_user == transaction.vendor:
-			print('vendor')
-			try:
-				if fulfilled_form.form_type.data == '1':
-					# No issues with transactions, Change vendor_fulfilled to 1	
-					transaction.vendor_fulfilled = 1
+			try:	
+				transaction.vendor_fulfilled = 1
 			except Exception as e:
-				flash(f'{ERROR} : {e}', warning)
+				flash(f'{ERROR} : {e}', 'warning')
 				return redirect(url_for('users.userdashboard'))
 			else:
 				pictures = save_picture(fulfilled_form.picture.data)
@@ -194,14 +190,11 @@ def userdashboard(transaction_id=''):
 				return redirect(url_for('users.userdashboard'))
 		else: # If the current user is the buyer
 			try:
-				if fulfilled_form.form_type.data == '1':
-					# No issues with transactions, Change customer_fulfilled to 1
-					transaction.customer_fulfilled = 1
-					print(f'{fulfilled_form.rating.data} and {fulfilled_form.buyer_comment.data}')
-					transaction.rating = fulfilled_form.rating.data
-					transaction.buyer_comment = fulfilled_form.buyer_comment.data
+				transaction.customer_fulfilled = 1
+				transaction.rating = fulfilled_form.rating.data
+				transaction.buyer_comment = fulfilled_form.buyer_comment.data
 			except Exception as e:
-				flash(f'{ERROR} : {e}', warning)
+				flash(f'{ERROR} : {e}', 'warning')
 				return redirect(url_for('users.userdashboard'))
 			else:
 				pictures = save_picture(fulfilled_form.picture.data)
@@ -210,6 +203,39 @@ def userdashboard(transaction_id=''):
 				flash('Transaction updated successfully.', 'success')
 				return redirect(url_for('users.userdashboard'))
 
+	if transaction_id != '' and form_type == 'dispute' and dispute_form.validate_on_submit():
+		transaction = Transaction.query.filter_by(id=transaction_id).first()
+		if current_user == transaction.vendor:
+			try:
+				transaction.vendor_fulfilled = 2
+				transaction.vendor_comment = dispute_form.comment.data
+			except Exception as e:
+				flash(f'{ERROR} : {e}', 'warning')
+				return redirect(url_for('users.userdashboard'))
+			else:
+				if dispute_form.picture.data[0].filename != '':
+					pictures = save_picture(dispute_form.picture.data)
+					transaction.vendor_picture=pictures
+				db.session.commit()
+				flash('Transaction disputed, 9crow agents will look into this transaction within the next 4 hours.', 'success')
+				return redirect(url_for('users.userdashboard'))
+		else: # If current user is a buyer
+			try:
+				transaction.customer_fulfilled = 2
+				transaction.rating = dispute_form.rating.data
+				transaction.buyer_comment = dispute_form.comment.data
+			except Exception as e:
+				flash(f'{ERROR} : {e}', 'warning')
+				return redirect(url_for('users.userdashboard'))
+			else:
+				if dispute_form.picture.data[0].filename != '':
+					pictures = save_picture(dispute_form.picture.data)
+					transaction.buyer_picture=pictures
+				db.session.commit()
+				flash('Transaction disputed, 9crow agents will look into this transaction within the next 4 hours.', 'success')
+				return redirect(url_for('users.userdashboard'))
+
+		# return redirect(url_for('users.userdashboard'))
 	# This calculation is done for the profile complete level in the fronend
 	phone, add, acc = 0, 0, 0
 	if current_user.phone != None:
@@ -221,7 +247,7 @@ def userdashboard(transaction_id=''):
 	profile_complete = int(((phone+acc+add)/3) * 100)
 	
 
-	return render_template('dashboard.html', title='User Dashboard', pc=profile_complete, fulfilled_form=fulfilled_form)
+	return render_template('dashboard.html', title='User Dashboard', pc=profile_complete, fulfilled_form=fulfilled_form, dispute_form=dispute_form)
 
 @users.route('/logout')
 @login_required

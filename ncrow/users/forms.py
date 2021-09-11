@@ -1,7 +1,7 @@
 from ncrow.models import User
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SelectField, DateField, RadioField, IntegerField, MultipleFileField, HiddenField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, DateField, RadioField, IntegerField, HiddenField, MultipleFileField, TextAreaField
 from wtforms.fields.html5 import EmailField, TelField, URLField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError
 from flask_wtf.file import FileAllowed
@@ -84,6 +84,10 @@ class BankAccount(FlaskForm):
 
 class Fulfilled(FlaskForm):
 	buyer_comment = TextAreaField('Comment', default='Good')
-	rating = SelectField('Rating', choices=[(1),(2),(3),(4),(5)], default=1)
+	rating = SelectField('Rating', choices=[(1),(2),(3),(4),(5)], default=5)
 	picture = MultipleFileField('Proof Images', validators = [FileAllowed(['jpg','png', 'jpeg','JPG','JPEG','PNG']), InputRequired('Please upload a proof of fulfillment')])
-	form_type = HiddenField('Fulfilled', validators = [InputRequired()])
+
+class Dispute(FlaskForm):
+	comment = TextAreaField('Comment', default='Bad')
+	rating = SelectField('Rating', choices=[(1),(2),(3),(4),(5)], default=1)
+	picture = MultipleFileField('Proof Images', validators = [FileAllowed(['jpg','png', 'jpeg','JPG','JPEG','PNG'])])

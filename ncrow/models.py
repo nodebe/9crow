@@ -59,7 +59,8 @@ class Transaction(db.Model):
 	_vendor_picture = db.Column(db.String, default = None)
 	_buyer_picture = db.Column(db.String, default = None)
 	rating = db.Column(db.Integer, default=0)
-	buyer_comment = db.Column(db.String(200))
+	buyer_comment = db.Column(db.Text)
+	vendor_comment = db.Column(db.Text)
 	customer_fulfilled = db.Column(db.Integer, default=0)
 	vendor_fulfilled = db.Column(db.Integer, default=0)
 

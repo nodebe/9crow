@@ -151,14 +151,13 @@
                   {% if current_user.transactions == [] %}
                   <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {# In this loop, the vendor traces to the buyer and the buyer traces to the vendor. I do not actually know why. You should know too. #}
                   {% for transaction in current_user.vendor_transactions + current_user.user_transactions %}
                   <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#transaction-detail-{{transaction.id}}">
                     <div class="row align-items-center flex-row">
                       <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
                       <div class="col col-sm-7"><span>{{transaction.description | truncate(150)}}</span> </div>
                       <div class="col-auto col-sm-2 d-none d-sm-block text-center text-3">
-                        {% if transaction.customer_fulfilled and transaction.vendor_fulfilled %}
+                        {% if transaction.customer_fulfilled == 1 and transaction.vendor_fulfilled == 1 %}
                         <span class="text-success" data-toggle="tooltip" data-original-title="Confirmed"><i class="fas fa-check-circle"></i></span>
                         {% else %}
                         <span class="text-warning" data-toggle="tooltip" data-original-title="In Progress"><i class="fas fa-ellipsis-h"></i></span>
@@ -199,7 +198,9 @@
                           </span>
                         </p>
                           {% else %}
-                          <li class="mb-2">Fee <span class="float-right text-3">+₦{{ transaction.amount * 0.015 }}</span></li>
+                          <!-- <ul class="list-unstyled"> -->
+                            <li class="mb-2">Fee <span class="float-right text-3">+₦{{ transaction.amount * 0.015 }}</span></li>
+                          </ul>
                           <hr class="mb-2">
                           <p class="d-flex align-items-center font-weight-500 mb-4">Total Amount 
                             <span class="text-3 ml-auto">₦{{transaction.amount + (transaction.amount * 0.015)}}
@@ -220,10 +221,12 @@
                         </ul>
                         <ul class="list-unstyled">
                           <li class="font-weight-500">Status:</li>
-                          {% if transaction.customer_fulfilled and transaction.vendor_fulfilled %}
-                          <li class="text-muted">Completed</li>
+                          {% if transaction.customer_fulfilled == 1 and transaction.vendor_fulfilled == 1 %}
+                          <li class="text-success">Completed</li>
+                          {% elif transaction.customer_fulfilled == 2 or transaction.vendor_fulfilled == 2 %}
+                          <li class="text-danger">Disputed</li>
                           {% else %}
-                          <li class="text-muted">Pending</li>
+                          <li class="text-warning">Pending</li>
                           {% endif %}
                         </ul>
                         {% if (transaction.customer_fulfilled and transaction.buyer == current_user) or (transaction.vendor_fulfilled and transaction.vendor == current_user) %}
@@ -231,7 +234,7 @@
                         <ul class="list-unstyled mt-2">
                           <li>
                             <a href="#fulfilled" data-toggle="modal" class="btn btn-secondary btn-sm">Fulfilled</a>
-                            <a href="#" class="btn btn-outline-danger btn-sm">Dispute</a>
+                            <a href="#dispute" data-toggle="modal" class="btn btn-outline-danger btn-sm">Dispute</a>
                           </li>
                         </ul>
                         {% endif %}
@@ -252,7 +255,7 @@
                   <button type="button" class="close font-weight-400" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
                 </div>
                 <div class="modal-body p-4">
-                  <form id="fulfilled" method="post" enctype="multipart/form-data"  action="{{url_for('users.userdashboard', transaction_id=transaction.id)}}">
+                  <form id="fulfilled" method="post" enctype="multipart/form-data"  action="{{url_for('users.userdashboard', transaction_id=transaction.id, form_type='fulfilled')}}">
                     {{ fulfilled_form.hidden_tag() }}
                     {% from 'includes/_formhelpers.html' import render_field  %}
                     <div class="row">
@@ -277,6 +280,41 @@
             </div>
           </div>
           <!-- Fulfilled Modal End -->
+
+          <!-- Dispute Modal Begin -->
+          <div id="dispute" class="modal fade mt-4" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title font-weight-400">Dispute Transaction</h5>
+                  <button type="button" class="close font-weight-400" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body p-4">
+                  <form id="dispute" method="post" enctype="multipart/form-data"  action="{{url_for('users.userdashboard', transaction_id=transaction.id, form_type='dispute')}}">
+                    {{ dispute_form.hidden_tag() }}
+                    {% from 'includes/_formhelpers.html' import render_field  %}
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="form-group">
+                          {{ render_field(dispute_form.picture, class_="form-control") }}
+                        </div>
+                        {% if current_user == transaction.buyer %}
+                        <div class="form-group">
+                          {{ render_field(dispute_form.rating, class_="form-control", required="true") }}
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                          {{ render_field(dispute_form.comment, class_="form-control", required="true") }}
+                        </div>
+                      </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Dispute Modal End -->
                   {% endfor %}
                 </div>
                 <div class="text-center my-4"><a href="transactions.html" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div>

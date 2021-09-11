@@ -5,7 +5,6 @@ from ncrow.config import app
 
 def save_picture(form_picture):
 	picture_fn = []
-	print(form_picture)
 	for i in form_picture:
 		random_hex = secrets.token_hex(8)
 		_, f_ext = os.path.splitext(i.filename)

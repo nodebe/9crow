@@ -52,7 +52,7 @@ class Transaction(db.Model):
 	id = db.Column(db.Integer, primary_key=True, unique=True)
 	vendor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-	transaction_id = db.Column(db.String(15), unique=True) # Generated using the token secrets. Do check before inserting
+	transaction_id = db.Column(db.String(18), unique=True) # Generated using the token secrets. Do check before inserting
 	amount = db.Column(db.Integer, default=0)
 	description= db.Column(db.String)
 	transaction_date = db.Column(db.DateTime)
@@ -95,8 +95,8 @@ class Transaction(db.Model):
 class WithdrawDeposit(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	transaction_type = db.Column(db.String(11))
-	transaction_id = db.Column(db.String(30))
+	transaction_id = db.Column(db.String(18))
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	amount = db.Column(db.Integer, default=0)
-	date = db.Column(db.String(11))
+	transaction_date = db.Column(db.DateTime)
 	status = db.Column(db.String(9), default='pending')

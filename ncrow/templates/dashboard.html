@@ -30,7 +30,7 @@
             </div>
           </div>
           <p class="text-3 font-weight-500 mb-2">Hello, {{current_user.fullname}}</p>
-          <p class="mb-2"><a href="#edit-personal-details" class="text-5 text-light" data-toggle="modal" title="Edit Profile"><i class="fas fa-edit"></i></a></p>
+          <p class="mb-2"><a href="{{url_for('users.userprofile')}}" class="text-5 text-light" title="Edit Profile"><i class="fas fa-edit"></i></a></p>
         </div>
         <!-- Profile Details End -->
         
@@ -151,7 +151,7 @@
                   {% if current_user.transactions == [] %}
                   <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {% for transaction in current_user.vendor_transactions + current_user.user_transactions %}
+                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:7] %}
                   <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#transaction-detail-{{transaction.id}}">
                     <div class="row align-items-center flex-row">
                       <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
@@ -163,7 +163,7 @@
                         <span class="text-warning" data-toggle="tooltip" data-original-title="In Progress"><i class="fas fa-ellipsis-h"></i></span>
                         {% endif %}
                       </div>
-                      <div class="col-3 col-sm-2 text-right text-4"> <span class="text-nowrap">₦{{transaction.amount}}</span></div>
+                      <div class="col-3 col-sm-2 text-right text-3"> <span class="text-nowrap ml-n1">₦{{transaction.amount}}</span></div>
                     </div>
                   </div>
                   <!-- Transaction Item Details Modal
@@ -319,18 +319,34 @@
                 </div>
                 <div class="text-center my-4"><a href="transactions.html" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div>
               </div>
+
+              <!-- User Activities Begin -->
               <div class="tab-pane fade" id="user-activities" role="tabpanel" aria-labelledby="user-activities-tab">
                 <div class="transaction-list bg-light">
-                  <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#transaction-detail">
+                  {% for transaction in current_user.withdraws_deposits[:7] %}
+                  <div class="transaction-item px-4 py-3">
                     <div class="row align-items-center flex-row">
-                      <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">16</span> <span class="d-block text-1 font-weight-300 text-uppercase">APR</span> </div>
-                      <div class="col col-sm-7"> <span class="d-block text-4">HDFC Bank</span> <span class="text-muted">Withdraw to Bank account</span> </div>
-                      <div class="col-auto col-sm-2 d-none d-sm-block text-center text-3"> <span class="text-warning" data-toggle="tooltip" data-original-title="In Progress"><i class="fas fa-ellipsis-h"></i></span> </div>
-                      <div class="col-3 col-sm-2 text-right text-4"> <span class="text-nowrap">- $562</span> <span class="text-2 text-uppercase">(USD)</span> </div>
+                      <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
+                      <div class="col col-sm-7"> <span class="d-block text-4">{{transaction.transaction_type}}</span><span class="text-muted">{{transaction.transaction_id}}</span> </div>
+                      {% if transaction.status == 'pending' %}
+                      <div class="col-auto col-sm-2 d-none d-sm-block text-center text-3"> <span class="text-warning" data-toggle="tooltip" data-original-title="In Progress"><i class="fas fa-ellipsis-h"></i></span>
+                      </div>
+                      {% else %}
+                      <div class="col-auto col-sm-2 d-none d-sm-block text-center text-3"> 
+                        <span class="text-success" data-toggle="tooltip" data-original-title="Complete"><i class="fas fa-check-circle"></i>
+                        </span>
+                      </div>
+                      {% endif %}
+                      {% if transaction.transaction_type == 'withdraw' %}
+                      <div class="col-3 col-sm-2 text-right text-3"> <span class="text-nowrap ml-n2">-₦{{transaction.amount}}</span> </div>
+                      {% else %}
+                      <div class="col-3 col-sm-2 text-right text-3"> <span class="text-nowrap ml-n2">+₦{{transaction.amount}}</span> </div>
+                      {% endif %}
                     </div>
                   </div>
+                  {% endfor %}
                 </div>
-                <div class="text-center my-4"><a href="transactions.html" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div>
+                <div class="text-center my-4"><a href="#" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div>
               </div>
             </div>
           

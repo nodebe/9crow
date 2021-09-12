@@ -78,9 +78,19 @@ def withdrawal():
 				current_user.balance.available = 0
 				db.session.add(withdraw)
 				db.session.commit()
-				flash('Your withdrawal has been queued. You will receive the amount in your account within 24 hours.', 'success')
-				return redirect(url_for('transactions.withdrawal'))
+				# flash('Your withdrawal has been queued. You will receive the amount in your account within 24 hours.', 'success')
+				return redirect(url_for('transactions.withdrawal_success', transaction_id=withdraw.id))
 		else:
 			flash('Your balance is too low.', 'warning')
 
 	return render_template('withdraw-money.html', title='Withdraw')
+
+
+@transactions.route('/withdrawal_success/<transaction_id>')
+@login_required
+def withdrawal_success(transaction_id):
+	transaction = WithdrawDeposit.query.filter_by(id=transaction_id).first()
+	if transaction.user_id == current_user.id:
+		return render_template('withdraw-money-success.html', title='Withdraw success', transaction=transaction)
+	else:
+		abort(401)

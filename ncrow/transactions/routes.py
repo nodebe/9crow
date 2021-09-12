@@ -64,22 +64,26 @@ def paystack_page(transaction_id):
 @login_required
 def withdrawal():
 	bank_id = request.form.get('bankValue')
+	password = request.form.get('password')
 	if request.method == 'POST':
-		if current_user.balance.available > 0:
-			try:
-				transaction_id = secrets.token_hex(8)
-				check_id = WithdrawDeposit.query.filter_by(transaction_id=transaction_id).first()
-				while check_id: #Checks if transaction id already exists in db
+		if current_user.balance.available > 0: 
+			if sha256.verify(password, current_user.password):
+				try:
 					transaction_id = secrets.token_hex(8)
-				withdraw = WithdrawDeposit(transaction_type='Withdrawal',transaction_id=transaction_id,user_id=current_user.id,bank_id=bank_id,amount=current_user.balance.available,transaction_date=dt.now())
-			except Exception as e:
-				flash(f'{ERROR} : {e}', 'warning')
+					check_id = WithdrawDeposit.query.filter_by(transaction_id=transaction_id).first()
+					while check_id: #Checks if transaction id already exists in db
+						transaction_id = secrets.token_hex(8)
+					withdraw = WithdrawDeposit(transaction_type='Withdrawal',transaction_id=transaction_id,user_id=current_user.id,bank_id=bank_id,amount=current_user.balance.available,transaction_date=dt.now())
+				except Exception as e:
+					flash(f'{ERROR} : {e}', 'warning')
+				else:
+					current_user.balance.available = 0
+					db.session.add(withdraw)
+					db.session.commit()
+					return redirect(url_for('transactions.withdrawal_success', transaction_id=withdraw.id))
 			else:
-				current_user.balance.available = 0
-				db.session.add(withdraw)
-				db.session.commit()
-				# flash('Your withdrawal has been queued. You will receive the amount in your account within 24 hours.', 'success')
-				return redirect(url_for('transactions.withdrawal_success', transaction_id=withdraw.id))
+				flash('Incorrect password!', 'warning')
+				return redirect(url_for('transactions.withdrawal'))
 		else:
 			flash('Your balance is too low.', 'warning')
 

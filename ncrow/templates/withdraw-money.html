@@ -36,6 +36,10 @@
                   {% endfor %}
                 </select>
               </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" class="form-control">
+              </div>
               <p class="font-weight-500">Amount to Withdraw <span class="text-3 float-right">₦{{current_user.balance.available}}</span></p>
               <button class="btn btn-primary btn-block">Continue</button>
             </form>

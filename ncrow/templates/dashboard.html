@@ -44,7 +44,7 @@
             {% if current_user.balance.available > 0 %} 
             <hr class="mx-n3">
             <div class="d-flex justify-content-center">
-            <a href="{{url_for('transactions.withdraw')}}" class="btn-link">Withdraw</a>
+            <a href="{{url_for('transactions.withdrawal')}}" class="btn-link">Withdraw</a>
             </div>
             {% endif %}
         </div>
@@ -152,7 +152,7 @@
                   {% if (current_user.vendor_transactions + current_user.user_transactions) == [] %}
                   <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50] %}
+                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50]|sort(attribute='transaction_date', reverse=True) %}
                   <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#transaction-detail-{{transaction.id}}">
                     <div class="row align-items-center flex-row">
                       <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
@@ -243,8 +243,8 @@
                         {% else %}
                         <ul class="list-unstyled mt-2">
                           <li>
-                            <a href="#fulfilled" data-toggle="modal" class="btn btn-secondary btn-sm">Fulfilled</a>
-                            <a href="#dispute" data-toggle="modal" class="btn btn-outline-danger btn-sm">Dispute</a>
+                            <a href="#fulfilled" data-toggle="modal" class="btn btn-secondary btn-sm" data-dismiss="modal">Fulfilled</a>
+                            <a href="#dispute" data-toggle="modal" data-dismiss="modal" class="btn btn-outline-danger btn-sm">Dispute</a>
                           </li>
                         </ul>
                         {% endif %}
@@ -257,7 +257,7 @@
           </div>
           <!-- Transaction Item Details Modal End -->
           <!-- Fulfilled Modal Begin -->
-          <div id="fulfilled" class="modal fade " role="dialog" aria-hidden="true">
+          <div id="fulfilled" class="modal fade" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -336,7 +336,7 @@
                   {% if current_user.withdraws_deposits == [] %}
                     <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {% for transaction in current_user.withdraws_deposits[:50] %}
+                  {% for transaction in current_user.withdraws_deposits[:50]|sort(attribute='transaction_date', reverse=True) %}
                   <div class="transaction-item px-4 py-3">
                     <div class="row align-items-center flex-row">
                       <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
@@ -369,7 +369,7 @@
                   {% if (current_user.vendor_transactions + current_user.user_transactions) == [] %}
                   <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50] %}
+                  {% for transaction in ((current_user.vendor_transactions + current_user.user_transactions)[:50])|sort(attribute='transaction_date', reverse=True) %}
                   {% if transaction.customer_fulfilled != 1 or transaction.vendor_fulfilled != 1 %}
                   <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#pending-transaction-detail-{{transaction.id}}">
                     <div class="row align-items-center flex-row">
@@ -461,8 +461,8 @@
                         {% else %}
                         <ul class="list-unstyled mt-2">
                           <li>
-                            <a href="#pending-fulfilled" data-toggle="modal" class="btn btn-secondary btn-sm">Fulfilled</a>
-                            <a href="#pending-dispute" data-toggle="modal" class="btn btn-outline-danger btn-sm">Dispute</a>
+                            <a href="#pending-fulfilled" data-toggle="modal" data-dismiss="modal" class="btn btn-secondary btn-sm">Fulfilled</a>
+                            <a href="#pending-dispute" data-toggle="modal" data-dismiss="modal" class="btn btn-outline-danger btn-sm">Dispute</a>
                           </li>
                         </ul>
                         {% endif %}

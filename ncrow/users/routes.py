@@ -190,6 +190,9 @@ def userdashboard(transaction_id='', form_type=''):
 		if current_user == transaction.vendor:
 			try:	
 				transaction.vendor_fulfilled = 1
+				if transaction.customer_fulfilled == 1:
+					transaction.vendor.balance.available += transaction.amount
+					transaction.vendor.balance.pending -= transaction.amount
 			except Exception as e:
 				flash(f'{ERROR} : {e}', 'warning')
 				return redirect(url_for('users.userdashboard'))
@@ -204,6 +207,9 @@ def userdashboard(transaction_id='', form_type=''):
 				transaction.customer_fulfilled = 1
 				transaction.rating = fulfilled_form.rating.data
 				transaction.buyer_comment = fulfilled_form.buyer_comment.data
+				if transaction.vendor_fulfilled == 1:
+					transaction.vendor.balance.available += transaction.amount
+					transaction.vendor.balance.pending -= transaction.amount
 			except Exception as e:
 				flash(f'{ERROR} : {e}', 'warning')
 				return redirect(url_for('users.userdashboard'))

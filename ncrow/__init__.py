@@ -11,6 +11,12 @@ login_manager.login_message_category = 'info'
 
 from ncrow.models import *
 
+# @login_manager.user_loader
+# def load_user(user_id):
+# 	'''This callback is used to reload the user object from the user ID stored in the session. 
+# 	It should take the unicode ID of a user, and return the corresponding user object'''
+	
+# 	return User.query.get(int(user_id))
 
 from ncrow.users.routes import users
 from ncrow.main.routes import main

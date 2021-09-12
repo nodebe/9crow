@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField,IntegerField, TextAreaField
+from ncrow.models import User
+from wtforms import BooleanField,IntegerField, TextAreaField, SelectField
 from wtforms.validators import InputRequired, Length, NumberRange
 
 

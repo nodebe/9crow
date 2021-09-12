@@ -97,6 +97,7 @@ class WithdrawDeposit(db.Model):
 	transaction_type = db.Column(db.String(11))
 	transaction_id = db.Column(db.String(18))
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	bank_id = db.Column(db.Integer)
 	amount = db.Column(db.Integer, default=0)
 	transaction_date = db.Column(db.DateTime)
 	status = db.Column(db.String(9), default='pending')

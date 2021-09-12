@@ -2,7 +2,7 @@ import secrets
 from datetime import datetime as dt
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from ncrow import db
-from ncrow.models import User, Transaction
+from ncrow.models import User, Transaction, WithdrawDeposit
 from ncrow.transactions.forms import RequestForm
 from flask_login import current_user, login_user, login_required
 from passlib.hash import sha256_crypt as sha256
@@ -10,12 +10,6 @@ from passlib.hash import sha256_crypt as sha256
 
 transactions = Blueprint('transactions', __name__)
 ERROR = 'Something went wrong, try again later!'
-
-@transactions.route('/withdraw')
-@login_required
-def withdraw():
-
-	return render_template('withdraw-money.html', title='Withdraw')
 
 @transactions.route('/request_money', methods=['GET', 'POST'])
 @login_required
@@ -53,7 +47,6 @@ def deposit_money(transaction_id):
 
 	return render_template('deposit-money.html', transaction=transaction, title='Deposit money')
 
-
 @transactions.route('/paystack_page/<transaction_id>')
 @login_required
 def paystack_page(transaction_id):
@@ -66,3 +59,28 @@ def paystack_page(transaction_id):
 		return redirect(url_for('users.userdashboard'))
 	
 	return '<h1>Oya pay!</h1>'
+
+@transactions.route('/withdrawal', methods=['GET','POST'])
+@login_required
+def withdrawal():
+	bank_id = request.form.get('bankValue')
+	if request.method == 'POST':
+		if current_user.balance.available > 0:
+			try:
+				transaction_id = secrets.token_hex(8)
+				check_id = WithdrawDeposit.query.filter_by(transaction_id=transaction_id).first()
+				while check_id: #Checks if transaction id already exists in db
+					transaction_id = secrets.token_hex(8)
+				withdraw = WithdrawDeposit(transaction_type='Withdrawal',transaction_id=transaction_id,user_id=current_user.id,bank_id=bank_id,amount=current_user.balance.available,transaction_date=dt.now())
+			except Exception as e:
+				flash(f'{ERROR} : {e}', 'warning')
+			else:
+				current_user.balance.available = 0
+				db.session.add(withdraw)
+				db.session.commit()
+				flash('Your withdrawal has been queued. You will receive the amount in your account within 24 hours.', 'success')
+				return redirect(url_for('transactions.withdrawal'))
+		else:
+			flash('Your balance is too low.', 'warning')
+
+	return render_template('withdraw-money.html', title='Withdraw')

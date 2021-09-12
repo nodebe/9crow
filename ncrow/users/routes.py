@@ -5,10 +5,13 @@ from ncrow.models import User, Account, Transaction, WithdrawDeposit, Balance
 from ncrow.users.forms import Register, ProfilePersonal, ProfileEmail, ProfilePhone, PasswordChange, BankAccount, Login, Fulfilled, Dispute, ProfileStore
 from ncrow.users.utils import save_picture
 from passlib.hash import sha256_crypt as sha256
+import hashlib
 
 
 users = Blueprint('users', __name__)
 ERROR = 'Something went wrong, try again later!'
+
+
 
 @users.route('/register', methods=['GET', 'POST'])
 def register():
@@ -133,8 +136,10 @@ def userprofile(form_type=''):
 			db.session.commit()
 			flash('Password updated successfully.', 'success')
 			return redirect(url_for('users.userprofile'))
+	
+	AVATAR_USER_HASH = hashlib.md5(current_user.username.lower().encode('utf-8')).hexdigest()
 
-	return render_template('profile.html', title='Profile', personal_edit=personal_edit_form, email_edit=email_edit_form, phone_edit=phone_edit_form, password_edit=password_edit_form, store_edit=store_edit_form)
+	return render_template('profile.html', title='Profile', personal_edit=personal_edit_form, email_edit=email_edit_form, phone_edit=phone_edit_form, password_edit=password_edit_form, store_edit=store_edit_form, user_hash=AVATAR_USER_HASH)
 
 @users.route('/userprofile_bank_accounts', methods=['GET', 'POST'])
 @login_required
@@ -151,8 +156,9 @@ def userprofile_bank_accounts():
 			db.session.commit()
 			flash('Bank Account added successfully.', 'success')
 			return redirect(url_for('users.userprofile_bank_accounts'))
-
-	return render_template('profile-bank-accounts.html', title='Bank Accounts', bank_edit=bank_edit_form)
+	AVATAR_USER_HASH = hashlib.md5(current_user.username.lower().encode('utf-8')).hexdigest()
+	
+	return render_template('profile-bank-accounts.html', title='Bank Accounts', bank_edit=bank_edit_form, user_hash=AVATAR_USER_HASH)
 
 @users.route('/profile_notifications')
 def profile_notifications():
@@ -262,9 +268,9 @@ def userdashboard(transaction_id='', form_type=''):
 	if current_user.bank_accounts != []:
 		acc = 1
 	profile_complete = int(((phone+acc+add)/3) * 100)
-	
+	AVATAR_USER_HASH = hashlib.md5(current_user.username.lower().encode('utf-8')).hexdigest()
 
-	return render_template('dashboard.html', title='User Dashboard', pc=profile_complete, fulfilled_form=fulfilled_form, dispute_form=dispute_form)
+	return render_template('dashboard.html', title='User Dashboard', pc=profile_complete, fulfilled_form=fulfilled_form, dispute_form=dispute_form,user_hash=AVATAR_USER_HASH)
 
 @users.route('/logout')
 @login_required

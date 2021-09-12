@@ -131,8 +131,9 @@
         {% endif %}
         <!-- Profile Completeness End -->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item"> <a class="nav-link active" id="vendor-activities-tab" data-toggle="tab" href="#vendor-activities" role="tab" aria-controls="vendor-activities" aria-selected="true">Vendor Activities</a> </li>
+          <li class="nav-item"> <a class="nav-link active" id="vendor-activities-tab" data-toggle="tab" href="#vendor-activities" role="tab" aria-controls="vendor-activities" aria-selected="true">All Vendor Activities</a> </li>
           <li class="nav-item"> <a class="nav-link" id="user-activities-tab" data-toggle="tab" href="#user-activities" role="tab" aria-controls="user-activities" aria-selected="false">User Activities</a> </li>
+          <li class="nav-item"> <a class="nav-link" id="pending-activities-tab" data-toggle="tab" href="#pending-activities" role="tab" aria-controls="pending-activities" aria-selected="false">Pending Activities</a> </li>
         </ul>
           <!-- Title
           =============================== -->
@@ -148,10 +149,10 @@
             <div class="tab-content" id="myTabContent">
               <div class="tab-pane fade show active" id="vendor-activities" role="tabpanel" aria-labelledby="vendor-activities-tab">
                 <div class="transaction-list bg-light">
-                  {% if current_user.transactions == [] %}
+                  {% if (current_user.vendor_transactions + current_user.user_transactions) == [] %}
                   <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:7] %}
+                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50][::-1] %}
                   <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#transaction-detail-{{transaction.id}}">
                     <div class="row align-items-center flex-row">
                       <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
@@ -189,7 +190,9 @@
                       <div class="px-3">
                         <ul class="list-unstyled">
                           <li class="mb-2">Payment Amount <span class="float-right text-3">₦{{transaction.amount}}</span></li>
+                        </ul>
                           {% if current_user == transaction.vendor %}
+                          <ul class="list-unstyled">
                           <li class="mb-2">Fee <span class="float-right text-3">-₦{{ transaction.amount * 0.010 }}</span></li>
                         </ul>
                         <hr class="mb-2">
@@ -198,7 +201,7 @@
                           </span>
                         </p>
                           {% else %}
-                          <!-- <ul class="list-unstyled"> -->
+                          <ul class="list-unstyled">
                             <li class="mb-2">Fee <span class="float-right text-3">+₦{{ transaction.amount * 0.015 }}</span></li>
                           </ul>
                           <hr class="mb-2">
@@ -317,13 +320,16 @@
           <!-- Dispute Modal End -->
                   {% endfor %}
                 </div>
-                <div class="text-center my-4"><a href="transactions.html" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div>
+                <!-- <div class="text-center my-4"><a href="#" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div> -->
               </div>
 
               <!-- User Activities Begin -->
               <div class="tab-pane fade" id="user-activities" role="tabpanel" aria-labelledby="user-activities-tab">
                 <div class="transaction-list bg-light">
-                  {% for transaction in current_user.withdraws_deposits[:7] %}
+                  {% if current_user.withdraws_deposits == [] %}
+                    <p class="bg-primary text-center text-white p-3">No Transaction available</p>
+                  {% endif %}
+                  {% for transaction in current_user.withdraws_deposits[:50] %}
                   <div class="transaction-item px-4 py-3">
                     <div class="row align-items-center flex-row">
                       <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
@@ -337,7 +343,7 @@
                         </span>
                       </div>
                       {% endif %}
-                      {% if transaction.transaction_type == 'withdraw' %}
+                      {% if transaction.transaction_type == 'Withdrawal' %}
                       <div class="col-3 col-sm-2 text-right text-3"> <span class="text-nowrap ml-n2">-₦{{transaction.amount}}</span> </div>
                       {% else %}
                       <div class="col-3 col-sm-2 text-right text-3"> <span class="text-nowrap ml-n2">+₦{{transaction.amount}}</span> </div>
@@ -346,8 +352,190 @@
                   </div>
                   {% endfor %}
                 </div>
-                <div class="text-center my-4"><a href="#" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div>
+               <!--  <div class="text-center my-4"><a href="#" class="btn-link text-3">View all<i class="fas fa-chevron-right text-2 ml-2"></i></a></div> -->
               </div>
+              <!-- User activities end -->
+
+              <!-- Pending activities begin -->
+              <div class="tab-pane fade" id="pending-activities" role="tabpanel" aria-labelledby="pending-activities-tab">
+                <div class="transaction-list bg-light">
+                  {% if (current_user.vendor_transactions + current_user.user_transactions) == [] %}
+                  <p class="bg-primary text-center text-white p-3">No Transaction available</p>
+                  {% endif %}
+                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50][::-1] %}
+                  {% if transaction.customer_fulfilled != 1 or transaction.vendor_fulfilled != 1 %}
+                  <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#pending-transaction-detail-{{transaction.id}}">
+                    <div class="row align-items-center flex-row">
+                      <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
+                      <div class="col col-sm-7"><span>{{transaction.description | truncate(150)}}</span> </div>
+                      <div class="col-auto col-sm-2 d-none d-sm-block text-center text-3">
+                        {% if transaction.customer_fulfilled == 1 and transaction.vendor_fulfilled == 1 %}
+                        <span class="text-success" data-toggle="tooltip" data-original-title="Confirmed"><i class="fas fa-check-circle"></i></span>
+                        {% else %}
+                        <span class="text-warning" data-toggle="tooltip" data-original-title="In Progress"><i class="fas fa-ellipsis-h"></i></span>
+                        {% endif %}
+                      </div>
+                      <div class="col-3 col-sm-2 text-right text-3"> <span class="text-nowrap ml-n1">₦{{transaction.amount}}</span></div>
+                    </div>
+                  </div>
+                  <!-- Transaction Item Details Modal
+          =========================================== -->
+          <div id="pending-transaction-detail-{{transaction.id}}" class="modal fade" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered transaction-details" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <div class="row no-gutters">
+                    <div class="col-sm-5 d-flex justify-content-center bg-primary rounded-left py-4">
+                      <div class="my-auto text-center">
+                        <div class="text-17 text-white my-3"><i class="fas fa-building"></i></div>
+                        <h3 class="text-4 text-white font-weight-400 my-3">{{ transaction.vendor.store_name }}</h3>
+                        <div class="text-8 font-weight-500 text-white my-4">₦{{transaction.amount}}</div>
+                        <p class="text-white">{{transaction.transaction_date.strftime('%d %b %Y')}}</p>
+                      </div>
+                    </div>
+                    <div class="col-sm-7">
+                      <h5 class="text-5 font-weight-400 m-3">Transaction Details
+                        <button type="button" class="close font-weight-400" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                      </h5>
+                      <hr>
+                      <div class="px-3">
+                        <ul class="list-unstyled">
+                          <li class="mb-2">Payment Amount <span class="float-right text-3">₦{{transaction.amount}}</span></li>
+                        </ul>
+                          {% if current_user == transaction.vendor %}
+                          <ul class="list-unstyled">
+                          <li class="mb-2">Fee <span class="float-right text-3">-₦{{ transaction.amount * 0.010 }}</span></li>
+                        </ul>
+                        <hr class="mb-2">
+                        <p class="d-flex align-items-center font-weight-500 mb-4">Total Amount 
+                          <span class="text-3 ml-auto">₦{{transaction.amount - (transaction.amount * 0.010)}}
+                          </span>
+                        </p>
+                          {% else %}
+                          <ul class="list-unstyled">
+                            <li class="mb-2">Fee <span class="float-right text-3">+₦{{ transaction.amount * 0.015 }}</span></li>
+                          </ul>
+                          <hr class="mb-2">
+                          <p class="d-flex align-items-center font-weight-500 mb-4">Total Amount 
+                            <span class="text-3 ml-auto">₦{{transaction.amount + (transaction.amount * 0.015)}}
+                            </span>
+                          </p>
+                          {% endif %}
+                        <ul class="list-unstyled">
+                          <li class="font-weight-500">Paid By:</li>
+                          <li class="text-muted">{{transaction.buyer.fullname}}</li>
+                        </ul>
+                        <ul class="list-unstyled">
+                          <li class="font-weight-500">Transaction ID:</li>
+                          <li class="text-muted">{{transaction.transaction_id}}</li>
+                        </ul>
+                        <ul class="list-unstyled">
+                          <li class="font-weight-500">Description:</li>
+                          <li class="text-muted">{{transaction.description}}</li>
+                        </ul>
+                        <ul class="list-unstyled">
+                          <li class="font-weight-500">Status:</li>
+                          {% if transaction.customer_fulfilled == 1 and transaction.vendor_fulfilled == 1 %}
+                          <li class="text-success">Completed</li>
+                          {% elif transaction.customer_fulfilled == 2 or transaction.vendor_fulfilled == 2 %}
+                          <li class="text-danger">Disputed</li>
+                          {% else %}
+                          <li class="text-warning">Pending</li>
+                          {% endif %}
+                        </ul>
+                        {% if (transaction.customer_fulfilled and transaction.buyer == current_user) or (transaction.vendor_fulfilled and transaction.vendor == current_user) %}
+                        {% else %}
+                        <ul class="list-unstyled mt-2">
+                          <li>
+                            <a href="#pending-fulfilled" data-toggle="modal" class="btn btn-secondary btn-sm">Fulfilled</a>
+                            <a href="#pending-dispute" data-toggle="modal" class="btn btn-outline-danger btn-sm">Dispute</a>
+                          </li>
+                        </ul>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Transaction Item Details Modal End -->
+          <!-- Fulfilled Modal Begin -->
+          <div id="pending-fulfilled" class="modal fade " role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title font-weight-400">Fulfill Transaction</h5>
+                  <button type="button" class="close font-weight-400" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body p-4">
+                  <form id="fulfilled" method="post" enctype="multipart/form-data"  action="{{url_for('users.userdashboard', transaction_id=transaction.id, form_type='fulfilled')}}">
+                    {{ fulfilled_form.hidden_tag() }}
+                    {% from 'includes/_formhelpers.html' import render_field  %}
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="form-group">
+                          {{ render_field(fulfilled_form.picture, class_="form-control", required="true") }}
+                        </div>
+                        {% if current_user == transaction.buyer %}
+                        <div class="form-group">
+                          {{ render_field(fulfilled_form.rating, class_="form-control", required="true") }}
+                        </div>
+                        <div class="form-group">
+                          {{ render_field(fulfilled_form.buyer_comment, class_="form-control", required="true") }}
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Fulfilled Modal End -->
+
+          <!-- Dispute Modal Begin -->
+          <div id="pending-dispute" class="modal fade mt-4" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title font-weight-400">Dispute Transaction</h5>
+                  <button type="button" class="close font-weight-400" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body p-4">
+                  <form id="dispute" method="post" enctype="multipart/form-data"  action="{{url_for('users.userdashboard', transaction_id=transaction.id, form_type='dispute')}}">
+                    {{ dispute_form.hidden_tag() }}
+                    {% from 'includes/_formhelpers.html' import render_field  %}
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="form-group">
+                          {{ render_field(dispute_form.picture, class_="form-control") }}
+                        </div>
+                        {% if current_user == transaction.buyer %}
+                        <div class="form-group">
+                          {{ render_field(dispute_form.rating, class_="form-control", required="true") }}
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                          {{ render_field(dispute_form.comment, class_="form-control", required="true") }}
+                        </div>
+                      </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <p class="bg-primary text-center text-white p-3">No Pending Transaction available</p>
+          {% endif %}
+          <!-- Dispute Modal End -->
+                  {% endfor %}
+                </div>
+              </div>
+              <!-- Pending activities end -->
             </div>
           
           

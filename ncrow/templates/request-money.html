@@ -26,9 +26,9 @@
                 {{ render_field(request_form.description, class_="form-control", placeholder="Payment Description", required="true", rows="4") }}
               </div>
               <div class="form-check mt-3">
-                  {{ render_field(request_form.agree, class_="form-check-input") }}
-                  <label class="form-check-label">Agree to our <a href="#">Terms and Conditions</a></label>
-                </div>
+                {{ render_field(request_form.agree, class_="form-check-input") }}
+                <label class="form-check-label">Agree to our <a href="#">Terms and Conditions</a></label>
+              </div>
               <a href="#confirm-request" data-toggle="modal" class="btn btn-secondary btn-block mt-4">Continue</a>
               <div id="confirm-request" class="modal fade " role="dialog" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered" role="document">

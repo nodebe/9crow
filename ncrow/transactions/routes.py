@@ -45,3 +45,24 @@ def request_money_success(transaction_id):
 		return render_template('request-money-success.html', title='Request money success', transaction=transaction)
 	else:
 		abort(401)
+
+@transactions.route('/pay/<transaction_id>')
+@login_required
+def deposit_money(transaction_id):
+	transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
+
+	return render_template('deposit-money.html', transaction=transaction, title='Deposit money')
+
+
+@transactions.route('/paystack_page/<transaction_id>')
+@login_required
+def paystack_page(transaction_id):
+	transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
+	if transaction.vendor == current_user:
+		flash("You can't make a payment for your own transaction.", 'warning')
+		return redirect(url_for('transactions.deposit_money', transaction_id=transaction.transaction_id))
+	if transaction.buyer != None:
+		flash("There is already a user for this transaction.", 'warning')
+		return redirect(url_for('users.userdashboard'))
+	
+	return '<h1>Oya pay!</h1>'

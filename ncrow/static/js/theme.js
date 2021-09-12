@@ -1,4 +1,17 @@
 
+  /*my own code*/
+  $('.toast').toast()
+  function clickToCopy(element){
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val($(element).text()).select();
+    document.execCommand("copy");
+    $temp.remove();
+    alert('copied to clipboard')
+  }
+
+
+  /*end of my code*/
 (function ($) {
 	"use strict";
 

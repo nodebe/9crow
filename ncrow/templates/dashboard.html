@@ -152,7 +152,7 @@
                   {% if (current_user.vendor_transactions + current_user.user_transactions) == [] %}
                   <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50][::-1] %}
+                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50] %}
                   <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#transaction-detail-{{transaction.id}}">
                     <div class="row align-items-center flex-row">
                       <div class="col-2 col-sm-1 text-center"> <span class="d-block text-4 font-weight-300">{{transaction.transaction_date.strftime('%d')}}</span> <span class="d-block text-1 font-weight-300 text-uppercase">{{transaction.transaction_date.strftime('%b')}} {{transaction.transaction_date.strftime('%Y')}}</span> </div>
@@ -222,6 +222,13 @@
                           <li class="font-weight-500">Description:</li>
                           <li class="text-muted">{{transaction.description}}</li>
                         </ul>
+                        {% if transaction.buyer_id == None %}
+                        <ul class="list-unstyled">
+                          <li class="font-weight-500">Link:</li>
+                          <li class="text-muted" id="dashboard-payment-link-{{transaction.id}}">www.9crow.com/pay/{{transaction.transaction_id}}</li>
+                          <li><button class="btn btn-link btn-sm" onclick="clickToCopy('#dashboard-payment-link-{{transaction.id}}')"><i class="fas fa-copy"></i> Copy Link</button></li>
+                        </ul>
+                        {% endif %}
                         <ul class="list-unstyled">
                           <li class="font-weight-500">Status:</li>
                           {% if transaction.customer_fulfilled == 1 and transaction.vendor_fulfilled == 1 %}
@@ -362,7 +369,7 @@
                   {% if (current_user.vendor_transactions + current_user.user_transactions) == [] %}
                   <p class="bg-primary text-center text-white p-3">No Transaction available</p>
                   {% endif %}
-                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50][::-1] %}
+                  {% for transaction in (current_user.vendor_transactions + current_user.user_transactions)[:50] %}
                   {% if transaction.customer_fulfilled != 1 or transaction.vendor_fulfilled != 1 %}
                   <div class="transaction-item px-4 py-3" data-toggle="modal" data-target="#pending-transaction-detail-{{transaction.id}}">
                     <div class="row align-items-center flex-row">
@@ -433,6 +440,13 @@
                           <li class="font-weight-500">Description:</li>
                           <li class="text-muted">{{transaction.description}}</li>
                         </ul>
+                        {% if transaction.buyer_id == None %}
+                        <ul class="list-unstyled">
+                          <li class="font-weight-500">Link:</li>
+                          <li class="text-muted" id="dashboard-payment-link-{{transaction.id}}">www.9crow.com/pay/{{transaction.transaction_id}}</li>
+                          <li><button class="btn btn-link btn-sm" onclick="clickToCopy('#dashboard-payment-link-{{transaction.id}}')"><i class="fas fa-copy"></i> Copy Link</button></li>
+                        </ul>
+                        {% endif %}
                         <ul class="list-unstyled">
                           <li class="font-weight-500">Status:</li>
                           {% if transaction.customer_fulfilled == 1 and transaction.vendor_fulfilled == 1 %}
@@ -528,8 +542,6 @@
               </div>
             </div>
           </div>
-          {% else %}
-          <p class="bg-primary text-center text-white p-3">No Pending Transaction available</p>
           {% endif %}
           <!-- Dispute Modal End -->
                   {% endfor %}

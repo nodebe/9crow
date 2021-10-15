@@ -18,3 +18,13 @@ def fees():
 def contactus():
 	
 	return render_template('contact-us.html', title='Contact us')
+
+@main.route('/aboutus')
+def aboutus():
+
+	return render_template('about-us.html', title='About us')
+
+@main.route('/help')
+def help():
+
+	return render_template('help.html', title='Help')

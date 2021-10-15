@@ -189,20 +189,20 @@
                         </ul>
                           {% if current_user == transaction.vendor %}
                           <ul class="list-unstyled">
-                          <li class="mb-2">Fee <span class="float-right text-3">-₦{{ transaction.amount * 0.010 }}</span></li>
+                          <li class="mb-2">Fee <span class="float-right text-3">-₦{{ (transaction.amount * 0.015)|int() }}</span></li>
                         </ul>
                         <hr class="mb-2">
                         <p class="d-flex align-items-center font-weight-500 mb-4">Total Amount 
-                          <span class="text-3 ml-auto">₦{{transaction.amount - (transaction.amount * 0.010)}}
+                          <span class="text-3 ml-auto">₦{{(transaction.amount - (transaction.amount * 0.015))|int()}}
                           </span>
                         </p>
                           {% else %}
                           <ul class="list-unstyled">
-                            <li class="mb-2">Fee <span class="float-right text-3">+₦{{ transaction.amount * 0.015 }}</span></li>
+                            <li class="mb-2">Fee <span class="float-right text-3">+₦{{ (transaction.amount * 0.025)|int() }}</span></li>
                           </ul>
                           <hr class="mb-2">
                           <p class="d-flex align-items-center font-weight-500 mb-4">Total Amount 
-                            <span class="text-3 ml-auto">₦{{transaction.amount + (transaction.amount * 0.015)}}
+                            <span class="text-3 ml-auto">₦{{(transaction.amount + (transaction.amount * 0.025))|int()}}
                             </span>
                           </p>
                           {% endif %}
@@ -407,20 +407,20 @@
                         </ul>
                           {% if current_user == transaction.vendor %}
                           <ul class="list-unstyled">
-                          <li class="mb-2">Fee <span class="float-right text-3">-₦{{ transaction.amount * 0.010 }}</span></li>
+                          <li class="mb-2">Fee <span class="float-right text-3">-₦{{ (transaction.amount * 0.015)|int() }}</span></li>
                         </ul>
                         <hr class="mb-2">
                         <p class="d-flex align-items-center font-weight-500 mb-4">Total Amount 
-                          <span class="text-3 ml-auto">₦{{transaction.amount - (transaction.amount * 0.010)}}
+                          <span class="text-3 ml-auto">₦{{(transaction.amount - (transaction.amount * 0.015))|int()}}
                           </span>
                         </p>
                           {% else %}
                           <ul class="list-unstyled">
-                            <li class="mb-2">Fee <span class="float-right text-3">+₦{{ transaction.amount * 0.015 }}</span></li>
+                            <li class="mb-2">Fee <span class="float-right text-3">+₦{{ (transaction.amount * 0.025)|int() }}</span></li>
                           </ul>
                           <hr class="mb-2">
                           <p class="d-flex align-items-center font-weight-500 mb-4">Total Amount 
-                            <span class="text-3 ml-auto">₦{{transaction.amount + (transaction.amount * 0.015)}}
+                            <span class="text-3 ml-auto">₦{{(transaction.amount + (transaction.amount * 0.025))|int()}}
                             </span>
                           </p>
                           {% endif %}

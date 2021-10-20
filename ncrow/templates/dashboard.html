@@ -2,16 +2,7 @@
 <!-- Secondary Menu
 ============================================= -->
 {% block secondarymenu %}
-<div class="bg-primary">
-  <div class="container d-flex justify-content-center">
-    <ul class="nav secondary-nav">
-      <li class="nav-item"> <a class="nav-link active" href="{{url_for('users.userdashboard')}}">Dashboard</a></li>
-      <li class="nav-item"> <a class="nav-link" href="{{url_for('users.userprofile')}}">Account</a></li>
-      <li class="nav-item"> <a class="nav-link" href="{{url_for('users.userprofile_bank_accounts')}}">Bank Accounts</a></li>
-      <li class="nav-item"> <a class="nav-link" href="{{url_for('users.profile_notifications')}}">Notifications</a></li>
-    </ul>
-  </div>
-</div>
+{% include 'secondary-menu.html' %}
 {% endblock secondarymenu %}
 <!-- Secondary Menu end --> 
 {% block body %}
@@ -19,47 +10,7 @@
     <div class="row"> 
       <!-- Left Panel
       ============================================= -->
-      <aside class="col-lg-3">
-        <!-- Profile Details
-        =============================== -->
-        <div class="bg-light shadow-sm rounded text-center p-3 mb-4">
-          <div class="profile-thumb mt-3 mb-4"> <img class="rounded-circle" src="{{ avatars.gravatar(user_hash) }}" alt="{{current_user.username}} Avatar">
-          </div>
-          <p class="text-3 font-weight-500 mb-2">Hello, {{current_user.fullname}}</p>
-          <p class="mb-2"><a href="{{url_for('users.userprofile')}}" class="text-5 text-light" title="Edit Profile"><i class="fas fa-edit"></i></a></p>
-        </div>
-        <!-- Profile Details End -->
-        
-        <!-- Available Balance
-        =============================== -->
-        <div class="bg-light shadow-sm rounded text-center p-3 mb-4">
-          <div class="text-17 text-light my-3"><i class="fas fa-wallet"></i></div>
-          <h3 class="text-9 font-weight-400">₦{{current_user.balance.available}}</h3>
-          <p class="mb-2 text-muted opacity-8">Available Balance</p>
-          
-            {% if current_user.balance.available > 0 %} 
-            <hr class="mx-n3">
-            <div class="d-flex justify-content-center">
-            <a href="{{url_for('transactions.withdrawal')}}" class="btn-link">Withdraw</a>
-            </div>
-            {% endif %}
-        </div>
-        <!-- Available Balance End --> 
-        
-        <!-- Need Help?
-        =============================== -->
-        <div class="bg-light shadow-sm rounded text-center p-3 mb-4">
-          <div class="text-17 text-light my-3">
-            <i class="fas fa-comments"></i>
-          </div>
-          <h3 class="text-3 font-weight-400 my-4">Need Help?</h3>
-          <p class="text-muted opacity-8 mb-4">Have questions or concerns regrading your account?<br>
-            We are always here to help.</p>
-          <a href="{{url_for('main.contactus')}}" class="btn btn-primary btn-block">Contact Us</a> 
-        </div>
-        <!-- Need Help? End --> 
-        
-      </aside>
+      {% include 'side-bar.html' %}
       <!-- Left Panel End --> 
       
       <!-- Middle Panel
